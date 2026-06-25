@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Report Generator — Portfolio</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px;
+    height: 800px;
+    background: #0f1117;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* LEFT PANEL */
+  .left {
+    width: 480px;
+    background: #161b27;
+    border-right: 1px solid #2a3142;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #1e2d4a;
+    border: 1px solid #2d4a7a;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #5b9cf6;
+    font-weight: 500;
+    margin-bottom: 28px;
+    width: fit-content;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #5b9cf6; }
+  h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+  h1 span { color: #5b9cf6; }
+  .subtitle {
+    font-size: 15px;
+    color: #8892a4;
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  .features { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+  .feat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #c8d0dc;
+  }
+  .feat-icon {
+    width: 32px; height: 32px;
+    background: #1e2d4a;
+    border: 1px solid #2d4a7a;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .tech-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tech {
+    background: #1a2035;
+    border: 1px solid #2a3142;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: #8892a4;
+    font-weight: 500;
+  }
+  .tech.hi { border-color: #2d4a7a; color: #5b9cf6; background: #1e2d4a; }
+
+  /* RIGHT PANEL — mock PDF preview */
+  .right {
+    flex: 1;
+    background: #1a1f2e;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .right::before {
+    content: 'PREVIEW';
+    position: absolute;
+    top: 20px; right: 20px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: #3a4255;
+    font-weight: 600;
+  }
+
+  /* Mock PDF document */
+  .pdf-doc {
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .pdf-header {
+    background: linear-gradient(135deg, #1e3a6e 0%, #2d5aa0 100%);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pdf-logo { display: flex; align-items: center; gap: 10px; }
+  .pdf-logo-box {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .pdf-company { color: #fff; font-size: 14px; font-weight: 700; }
+  .pdf-company-sub { color: rgba(255,255,255,0.6); font-size: 10px; }
+  .pdf-title-block { text-align: right; }
+  .pdf-report-title { color: #fff; font-size: 16px; font-weight: 700; }
+  .pdf-report-date { color: rgba(255,255,255,0.6); font-size: 10px; margin-top: 2px; }
+
+  .pdf-body { padding: 20px 24px; flex: 1; background: #fff; }
+
+  .pdf-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 18px; }
+  .pdf-stat {
+    background: #f8f9fc;
+    border: 1px solid #e8ecf4;
+    border-radius: 6px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .pdf-stat-val { font-size: 18px; font-weight: 700; color: #1e3a6e; }
+  .pdf-stat-label { font-size: 9px; color: #8892a4; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .pdf-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1e3a6e;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #1e3a6e;
+  }
+
+  /* mini bar chart */
+  .chart-area { display: flex; align-items: flex-end; gap: 8px; height: 70px; margin-bottom: 18px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+  .bar { width: 100%; border-radius: 3px 3px 0 0; }
+  .bar-label { font-size: 8px; color: #8892a4; }
+
+  /* mini table */
+  .pdf-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  .pdf-table th {
+    background: #1e3a6e;
+    color: #fff;
+    padding: 6px 8px;
+    text-align: left;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pdf-table td { padding: 5px 8px; border-bottom: 1px solid #f0f2f8; color: #444; }
+  .pdf-table tr:nth-child(even) td { background: #f8f9fc; }
+  .status-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 8px;
+    font-weight: 600;
+  }
+  .s-green { background: #e6f9f0; color: #1a8a5a; }
+  .s-blue { background: #e6f0ff; color: #1e3a6e; }
+  .s-amber { background: #fff8e6; color: #b07a00; }
+
+  /* bottom arrow animation */
+  .arrow-flow {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #5b9cf6, transparent);
+    animation: flow 2.5s linear infinite;
+  }
+  @keyframes flow { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+</style>
+</head>
+<body>
+
+<div class="left">
+  <div>
+    <div class="badge"><div class="badge-dot"></div> Python Automation Project</div>
+    <h1>Automated<br><span>PDF Report</span><br>Generator</h1>
+    <p class="subtitle">Upload any Excel or CSV file — get a professional, branded PDF report in seconds. No manual formatting ever again.</p>
+
+    <div class="features">
+      <div class="feat"><div class="feat-icon">📊</div> Auto-generates charts and summary tables</div>
+      <div class="feat"><div class="feat-icon">🎨</div> Company logo, colors, and branding included</div>
+      <div class="feat"><div class="feat-icon">⚡</div> 500 rows processed in under 3 seconds</div>
+      <div class="feat"><div class="feat-icon">📧</div> Optional: auto-email the PDF when done</div>
+    </div>
+  </div>
+
+  <div>
+    <div style="font-size: 11px; color: #3a4255; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.1em;">Built with</div>
+    <div class="tech-row">
+      <span class="tech hi">Python 3</span>
+      <span class="tech hi">ReportLab</span>
+      <span class="tech hi">Pandas</span>
+      <span class="tech">Matplotlib</span>
+      <span class="tech">openpyxl</span>
+    </div>
+  </div>
+</div>
+
+<div class="right">
+  <div class="pdf-doc">
+    <div class="pdf-header">
+      <div class="pdf-logo">
+        <div class="pdf-logo-box">🏢</div>
+        <div>
+          <div class="pdf-company">Acme Corporation</div>
+          <div class="pdf-company-sub">acmecorp.com</div>
+        </div>
+      </div>
+      <div class="pdf-title-block">
+        <div class="pdf-report-title">Q2 Sales Report 2024</div>
+        <div class="pdf-report-date">Generated: June 2024 • Auto-created by Python</div>
+      </div>
+    </div>
+
+    <div class="pdf-body">
+      <div class="pdf-stats">
+        <div class="pdf-stat"><div class="pdf-stat-val">$84K</div><div class="pdf-stat-label">Total Revenue</div></div>
+        <div class="pdf-stat"><div class="pdf-stat-val">247</div><div class="pdf-stat-label">Orders</div></div>
+        <div class="pdf-stat"><div class="pdf-stat-val">94%</div><div class="pdf-stat-label">Fulfillment</div></div>
+        <div class="pdf-stat"><div class="pdf-stat-val">+18%</div><div class="pdf-stat-label">Growth</div></div>
+      </div>
+
+      <div class="pdf-section-title">Monthly Revenue</div>
+      <div class="chart-area">
+        <div class="bar-group"><div class="bar" style="height:45px;background:#c8d8f0"></div><div class="bar-label">Jan</div></div>
+        <div class="bar-group"><div class="bar" style="height:55px;background:#c8d8f0"></div><div class="bar-label">Feb</div></div>
+        <div class="bar-group"><div class="bar" style="height:40px;background:#c8d8f0"></div><div class="bar-label">Mar</div></div>
+        <div class="bar-group"><div class="bar" style="height:62px;background:#1e3a6e"></div><div class="bar-label">Apr</div></div>
+        <div class="bar-group"><div class="bar" style="height:58px;background:#1e3a6e"></div><div class="bar-label">May</div></div>
+        <div class="bar-group"><div class="bar" style="height:68px;background:#2d5aa0"></div><div class="bar-label">Jun</div></div>
+      </div>
+
+      <div class="pdf-section-title">Top Orders</div>
+      <table class="pdf-table">
+        <thead>
+          <tr><th>Client</th><th>Product</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>TechStart Inc.</td><td>Pro License x5</td><td>$4,250</td><td><span class="status-badge s-green">Paid</span></td></tr>
+          <tr><td>Global Retail Co.</td><td>Enterprise Plan</td><td>$8,900</td><td><span class="status-badge s-green">Paid</span></td></tr>
+          <tr><td>NextStep LLC</td><td>Starter x12</td><td>$1,440</td><td><span class="status-badge s-blue">Processing</span></td></tr>
+          <tr><td>BrightSpark UK</td><td>Custom Dev</td><td>$6,200</td><td><span class="status-badge s-amber">Pending</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="arrow-flow"></div>
+</div>
+
+</body>
+</html>
